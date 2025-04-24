@@ -134,3 +134,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# WebStorm project files
+.idea/
+*.iml
+
+# Opcional: archivos temporales o de sistema
+.DS_Store
+*.log
+
