@@ -18,15 +18,23 @@ Aplicación backend de agendamiento de citas médicas para asegurados de Rímac,
 
 ## 🧱 Estructura del Proyecto
 
+```bash
 src/
-
-    ├—— application/ # Casos de uso (lógica de negocio)
-    ├—— domain/ # Entidades y repositorios 
-    ├—— infrastructure/ # Adaptadores AWS (Dynamo, RDS, SQS, SNS) 
-    ├—— interfaces/http/ # Controladores HTTP (handlers Lambda) 
-    ├—— config/ # Configuración Serverless y utilitarios tests/ # Pruebas unitarias
-
----
+├── application/                # Casos de uso (lógica de negocio)
+│   └── usecases/
+├── domain/                     # Entidades y repositorios 
+│   ├── entities/
+│   └── repositories/
+├── infrastructure/             # Adaptadores AWS (Dynamo, RDS, SQS, SNS)
+│   └── database/ 
+│   └── aws/
+├── interfaces/
+│   └── http/                   # Controladores HTTP (handlers Lambda)
+│       └── docs/
+│           └── components/
+├── config/                     # Configuración Serverless y utilitarios
+└── test/                       # Pruebas unitarias
+```
 
 ## 🔌 Endpoints Disponibles
 
