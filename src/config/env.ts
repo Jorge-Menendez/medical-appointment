@@ -10,6 +10,9 @@ export const env = {
         logsTable: process.env.DB_DYNAMO_LOGS_TABLE as string,
     },
     sns: {
-        topicArn: process.env.SNS_TOPIC_ARN as string,
+        topicArn: process.env.SNS_TOPIC_ARN as string
     },
+    aws:{
+        region:  process.env.AWS_REGION as string
+    }
 };

@@ -1,9 +1,35 @@
-import { Appointment } from '../../domain/entities/Appointment';
+import {Appointment} from '../../domain/entities/Appointment';
+import {IRdsAppointmentRepository} from "../../domain/repositories/IRdsAppointmentRepository";
+
+interface SqsMessage {
+  Body: string;
+}
 
 export class SqsConsumer {
-  async consume(message: any): Promise<void> {
-    const appointment: Appointment = JSON.parse(message.Body);
-    console.log('Mensaje recibido en SQS:', appointment);
-    // Aquí se usaría RdsAppointmentRepository
+  constructor(private readonly appointmentRepository: IRdsAppointmentRepository) {}
+  async consume(message: SqsMessage): Promise<void> {
+    try {
+      const appointment = this.parseMessage(message);
+      console.log('Mensaje recibido en SQS:', appointment);
+
+      await this.appointmentRepository.save(appointment);
+      console.log('Cita registrada correctamente en RDS');
+
+    } catch (error) {
+      console.error('Error procesando el mensaje SQS:', error);
+      // notificar el error, reintentar, enviar a DLQ, etc.
+    }
+  }
+
+  private parseMessage(message: SqsMessage): Appointment {
+    if (!message.Body) {
+      throw new Error('El mensaje no tiene Body');
+    }
+
+    try {
+      return JSON.parse(message.Body);
+    } catch (error) {
+      throw new Error('Body inválido: no se puede parsear a Appointment');
+    }
   }
 }

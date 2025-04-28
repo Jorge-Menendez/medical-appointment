@@ -8,3 +8,4 @@ export const DB_USER = env.db.user;
 export const DB_PASSWORD = env.db.password;
 export const DB_NAME = env.db.name;
 export const SNS_SUBJECT = 'Nuevo agendamiento de cita';
+export const AWS_REGION = env.aws.region;

@@ -7,7 +7,7 @@ const serverlessConfiguration: AWS = {
     provider: {
         name: 'aws',
         runtime: 'nodejs20.x',
-        region: 'us-east-1',
+        region: process.env.AWS_REGION ?? 'us-east-1',
         memorySize: 128,
         timeout: 30,
         environment: {
@@ -19,6 +19,7 @@ const serverlessConfiguration: AWS = {
             DB_USER: process.env.DB_USER!,
             DB_PASSWORD: process.env.DB_PASSWORD!,
             DB_NAME: process.env.DB_NAME!,
+            AWS_REGION0: process.env.AWS_REGION!
         },
     },
     functions: {
