@@ -1,6 +1,6 @@
 import { env } from './env';
 
-export const NEW_APPOINTMENTS = 'INSERT INTO appointments (insured_id, schedule_id, country_iso, status) VALUES (?,?,?,?)';
+export const NEW_APPOINTMENTS = 'INSERT INTO appointments ( insured_id, schedule_id, country_iso, center_id, specialty_id, medic_id, date, status) VALUES (?,?,?,?,?,?,?,?)';
 export const TABLE_NAME = 'Appointments';
 export const TOPIC_ARM = env.sns.topicArn ;
 export const DB_HOST = env.db.host;

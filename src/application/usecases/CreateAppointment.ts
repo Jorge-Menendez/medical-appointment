@@ -19,8 +19,11 @@ export class CreateAppointment {
             insuredId: command.insuredId,
             scheduleId: command.scheduleId,
             countryISO: command.countryISO,
+            centerId: 4,
+            specialtyId: 3,
+            medicId: 4,
             status: 'pending',
-            createdAt: new Date().toISOString(),
+            date : new Date()
         });
 
         try {
