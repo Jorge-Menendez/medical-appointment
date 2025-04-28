@@ -17,7 +17,7 @@ export class DynamoDBAppointmentRepository implements IDynamoDBAppointmentReposi
           scheduleId: appointment.scheduleId,
           countryISO: appointment.countryISO,
           status: appointment.status ?? 'pending',
-          createdAt: appointment.createdAt,
+          createdAt: appointment.date.toISOString(),
         },
       });
 
