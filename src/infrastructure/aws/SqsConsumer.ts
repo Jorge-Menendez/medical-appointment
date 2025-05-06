@@ -9,9 +9,10 @@ export class SqsConsumer {
   constructor(private readonly appointmentRepository: IRdsAppointmentRepository) {}
   async consume(message: SqsMessage): Promise<void> {
     try {
-      const appointment = this.parseMessage(message);
-      console.log('Mensaje recibido en SQS:', appointment);
+        const appointment = new Appointment(this.parseMessage(message));
+        console.log('Mensaje recibido en SQS:', appointment);
 
+      appointment.status = 'completed';
       await this.appointmentRepository.save(appointment);
       console.log('Cita registrada correctamente en RDS');
 

@@ -28,7 +28,7 @@ export class CreateAppointment {
 
         try {
             await this.dynamoRepository.savePending(appointment);
-            await this.rdsRepository.save(appointment);
+
             await this.snsPublisher.publish(appointment);
         } catch (error) {
             console.error('Error en CreateAppointment:', error);

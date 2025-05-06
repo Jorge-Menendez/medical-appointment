@@ -1,5 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
+type AwsRegion = | 'us-east-1' | 'us-east-2' |  undefined;
+
 const serverlessConfiguration: AWS = {
     service: 'rimac-appointment-service',
     frameworkVersion: '4',
@@ -7,7 +9,7 @@ const serverlessConfiguration: AWS = {
     provider: {
         name: 'aws',
         runtime: 'nodejs20.x',
-        region: process.env.AWS_REGION ?? 'us-east-1',
+        region: process.env.AWS_REGION!  as AwsRegion,
         memorySize: 128,
         timeout: 30,
         environment: {
@@ -77,34 +79,87 @@ const serverlessConfiguration: AWS = {
     },
     resources: {
         Resources: {
-            AppointmentsTable: {
-                Type: 'AWS::DynamoDB::Table',
+            /*AppointmentSnsTopic: {
+                Type: 'AWS::SNS::Topic',
                 Properties: {
-                    TableName: 'Appointments',
-                    BillingMode: 'PAY_PER_REQUEST',
-                    AttributeDefinitions: [
-                        { AttributeName: 'insuredId', AttributeType: 'S' },
-                        { AttributeName: 'scheduleId', AttributeType: 'N' }
-                    ],
-                    KeySchema: [
-                        { AttributeName: 'insuredId', KeyType: 'HASH' },
-                        { AttributeName: 'scheduleId', KeyType: 'RANGE' }
-                    ]
-                }
+                    TopicName: 'appointment-topic',
+                },
+            },*/
+
+            AppointmentPEQueue: {
+                Type: 'AWS::SQS::Queue',
+                Properties: {
+                    QueueName: 'appointment-pe-queue.fifo',
+                    FifoQueue: true,
+                    ContentBasedDeduplication: true,  // Evita duplicados en la cola
+                    Policy: {
+                        Statement: [
+                            {
+                                Effect: 'Allow',
+                                Action: 'SQS:SendMessage',
+                                Resource: { 'Fn::GetAtt': ['AppointmentPEQueue', 'Arn'] },
+                                Principal: '*',
+                                Condition: {
+                                    ArnEquals: {
+                                        'aws:SourceArn': { Ref: 'AppointmentSnsTopic' },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
             },
-            AppointmentLogsTable: {
-                Type: 'AWS::DynamoDB::Table',
+
+            AppointmentCLQueue: {
+                Type: 'AWS::SQS::Queue',
                 Properties: {
-                    TableName: 'AppointmentLogs',
-                    BillingMode: 'PAY_PER_REQUEST',
-                    AttributeDefinitions: [
-                        { AttributeName: 'logId', AttributeType: 'S' }
-                    ],
-                    KeySchema: [
-                        { AttributeName: 'logId', KeyType: 'HASH' }
-                    ]
-                }
+                    QueueName: 'appointment-cl-queue.fifo',
+                    FifoQueue: true,
+                    ContentBasedDeduplication: true,  // Evita duplicados en la cola
+                    Policy: {
+                        Statement: [
+                            {
+                                Effect: 'Allow',
+                                Action: 'SQS:SendMessage',
+                                Resource: { 'Fn::GetAtt': ['AppointmentCLQueue', 'Arn'] },
+                                Principal: '*',
+                                Condition: {
+                                    ArnEquals: {
+                                        'aws:SourceArn': { Ref: 'AppointmentSnsTopic' },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+
+            PEQueueSubscription: {
+                Type: 'AWS::SNS::Subscription',
+                Properties: {
+                    Protocol: 'sqs',
+                    TopicArn: process.env.SNS_TOPIC_ARN!,
+                    Endpoint: { 'Fn::GetAtt': ['AppointmentPEQueue', 'Arn'] },
+                    FilterPolicy: {
+                        countryISO: ['PE'],
+                    },
+                    RawMessageDelivery: true,
+                },
+            },
+
+            CLQueueSubscription: {
+                Type: 'AWS::SNS::Subscription',
+                Properties: {
+                    Protocol: 'sqs',
+                    TopicArn: process.env.SNS_TOPIC_ARN!,
+                    Endpoint: { 'Fn::GetAtt': ['AppointmentCLQueue', 'Arn'] },
+                    FilterPolicy: {
+                        countryISO: ['CL'],
+                    },
+                    RawMessageDelivery: true,
+                },
             }
+
         }
     }
 };
